@@ -17,7 +17,7 @@
 
 namespace Google.Impl {
   using System;
-  using System.Runtime.InteropServices;
+    using System.Runtime.InteropServices;
 
   /// <summary>
   /// Native future is an interal class that implements the FutureAPIImpl
@@ -28,16 +28,9 @@ namespace Google.Impl {
     internal NativeFuture(IntPtr ptr) : base(ptr) {
     }
 
-    public override void Dispose() {
-      GoogleSignInImpl.GoogleSignIn_DisposeFuture(SelfPtr());
-      base.Dispose();
-    }
+    public override void Dispose() => GoogleSignInImpl.GoogleSignIn_DisposeFuture(SelfPtr());
 
-    public bool Pending {
-      get {
-        return GoogleSignInImpl.GoogleSignIn_Pending(SelfPtr());
-      }
-    }
+    public bool Pending => GoogleSignInImpl.GoogleSignIn_Pending(SelfPtr());
 
     public GoogleSignInUser Result {
       get {
@@ -64,12 +57,13 @@ namespace Google.Impl {
         user.AuthCode = GoogleSignInImpl.GoogleSignIn_GetServerAuthCode(userPtr);
 
         string url = GoogleSignInImpl.GoogleSignIn_GetImageUrl(userPtr);
-        if (url.Length > 0) {
+        if (url?.Length > 0) {
           user.ImageUrl = new System.Uri(url);
         }
 
-        /** Require for no reason (tree shaking ?) */
+#pragma warning disable CS0219 // Require for no reason (tree shaking ?)
         var obj = (user.UserId,user.Email,user.DisplayName,user.FamilyName,user.GivenName,user.IdToken,user.AuthCode,user.ImageUrl);
+#pragma warning restore CS0219
 
         return user;
       }

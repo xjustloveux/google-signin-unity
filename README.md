@@ -1,3 +1,30 @@
+# Forked to upgrade base library to newer version
+
+https://developer.android.com/identity/sign-in/legacy-gsi-migration
+https://developers.google.com/identity/sign-in/ios/quick-migration-guide
+
+Thank for ios fix which was cherrypicked from this fork : https://github.com/pillsgood/google-signin-unity
+
+Android was migrated to use `CredentialManager` and `AuthorizationClient` since [GoogleSignInAccount was deprecated](https://developers.google.com/android/reference/com/google/android/gms/auth/api/signin/GoogleSignInAccount)
+
+However, `GoogleIdTokenCredential` actually not provide numeric unique ID anymore and set email as userId instead, so I have to extract jwt `sub` value from idToken (which seem like the same id as userId from GoogleSignIn of other platform)
+
+Also, this new system seem like it did not support email hint
+
+Tested in unity 2021.3.21 and unity 6000.0.4
+
+Add UPM dependency with branch tag `https://github.com/Thaina/google-signin-unity.git#newmigration`
+
+```json
+{
+  "dependencies": {
+    "com.google.external-dependency-manager": "https://github.com/googlesamples/unity-jar-resolver.git?path=upm",
+    "com.google.signin": "https://github.com/Thaina/google-signin-unity.git#newmigration",
+    ...
+  }
+}
+```
+
 # Google Sign-In Unity Plugin
 _Copyright (c) 2017 Google Inc. All rights reserved._
 

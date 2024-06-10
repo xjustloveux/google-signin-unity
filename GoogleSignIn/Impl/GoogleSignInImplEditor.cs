@@ -89,6 +89,7 @@ namespace Google.Impl
       try
       {
         var openURL = "https://accounts.google.com/o/oauth2/v2/auth?" + Uri.EscapeUriString("scope=openid email profile&response_type=code&redirect_uri=" + httpListener.Prefixes.FirstOrDefault() + "&client_id=" + configuration.WebClientId);
+        Debug.Log(openURL);
         Application.OpenURL(openURL);
       }
       catch(Exception e)
@@ -101,6 +102,7 @@ namespace Google.Impl
       httpListener.GetContextAsync().ContinueWith(async(task) => {
         try
         {
+          Debug.Log(task);
           var context = task.Result;
           var queryString = context.Request.Url.Query;
           var queryDictionary = System.Web.HttpUtility.ParseQueryString(queryString);
@@ -127,23 +129,28 @@ namespace Google.Impl
           var tokenType = (string)jobj.GetValue("token_type");
 
           var user = new GoogleSignInUser();
+          if(configuration.RequestAuthCode)
+            user.AuthCode = code;
+
           if(configuration.RequestIdToken)
             user.IdToken = (string)jobj.GetValue("id_token");
 
-          if(configuration.RequestEmail || configuration.RequestProfile)
-          {
-            var request = HttpWebRequest.CreateHttp("https://openidconnect.googleapis.com/v1/userinfo");
-            request.Method = "GET";
-            request.Headers.Add("Authorization", "Bearer " + accessToken);
+          var request = HttpWebRequest.CreateHttp("https://openidconnect.googleapis.com/v1/userinfo");
+          request.Method = "GET";
+          request.Headers.Add("Authorization", "Bearer " + accessToken);
 
-            var data = await request.GetResponseAsStringAsync().ContinueWith((task) => task.Result,taskScheduler);
-            //  "email_verified": true,"locale": ""
-            var userInfo = JObject.Parse(data);
-            user.UserId = (string)userInfo.GetValue("sub");
-            user.DisplayName = (string)userInfo.GetValue("name");
+          var data = await request.GetResponseAsStringAsync().ContinueWith((task) => task.Result,taskScheduler);
+          var userInfo = JObject.Parse(data);
+          user.UserId = (string)userInfo.GetValue("sub");
+          user.DisplayName = (string)userInfo.GetValue("name");
+
+          if(configuration.RequestEmail)
+            user.Email = (string)userInfo.GetValue("email");
+
+          if(configuration.RequestProfile)
+          {
             user.GivenName = (string)userInfo.GetValue("given_name");
             user.FamilyName = (string)userInfo.GetValue("family_name");
-            user.Email = (string)userInfo.GetValue("email");
             user.ImageUrl = Uri.TryCreate((string)userInfo.GetValue("picture"),UriKind.Absolute,out var url) ? url : null;
           }
 
