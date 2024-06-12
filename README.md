@@ -9,9 +9,23 @@ Android was migrated to use `CredentialManager` and `AuthorizationClient` since 
 
 However, `GoogleIdTokenCredential` actually not provide numeric unique ID anymore and set email as userId instead, so I have to extract jwt `sub` value from idToken (which seem like the same id as userId from GoogleSignIn of other platform)
 
-Also, this new system seem like it did not support email hint
+Also, this new system seem like it did not support email hint. And now require WebClientId in addition to Android Client ID. Which need to provided at configuration initialization
 
-Tested in unity 2021.3.21 and unity 6000.0.4
+```C#
+        GoogleSignIn.Configuration = new GoogleSignInConfiguration() {
+            RequestEmail = true,
+            RequestProfile = true,
+            RequestIdToken = true,
+            RequestAuthCode = true,
+            // must be web client ID, not android client ID
+            WebClientId = "XXXXXXXXX-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com",
+#if UNITY_EDITOR || UNITY_STANDALONE
+            ClientSecret = "XXXXXX-xxxXXXxxxXXXxxx-xxxxXXXXX" // optional for windows/macos and test in editor
+#endif
+        };
+```
+
+Tested in unity 2021.3.21 and unity 6000.0.5
 
 Add UPM dependency with branch tag `https://github.com/Thaina/google-signin-unity.git#newmigration`
 

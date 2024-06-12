@@ -157,7 +157,7 @@ public class GoogleSignInHelper {
         if(defaultAccountName != null)
           getGoogleIdOptionBuilder.setNonce(defaultAccountName);
 
-        if(requestIdToken && !Strings.isEmptyOrWhitespace(webClientId))
+        if(!Strings.isEmptyOrWhitespace(webClientId))
           getGoogleIdOptionBuilder.setServerClientId(webClientId);
 
         GetCredentialRequest.Builder getCredentialRequestBuilder = new GetCredentialRequest.Builder()
