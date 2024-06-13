@@ -55,6 +55,7 @@ void UnpauseUnityPlayer() {
 struct SignInResult {
   int result_code;
   bool finished;
+  NSString* serverAuthCode;
 };
 
 std::unique_ptr<SignInResult> currentResult_;
@@ -243,6 +244,7 @@ void *GoogleSignIn_SignIn() {
                                 hint:[GoogleSignInHandler sharedInstance]->loginHint
                                 completion:^(GIDSignInResult *result, NSError *error) {
         GIDGoogleUser *user = result.user;
+        currentResult_.get()->serverAuthCode = result.serverAuthCode;
         [[GoogleSignInHandler sharedInstance] signIn:[GIDSignIn sharedInstance] didSignInForUser:user withError:error];
     }];
     result = currentResult_.get();
@@ -322,10 +324,10 @@ static size_t CopyNSString(NSString *src, char *dest, size_t len) {
   return src ? src.length + 1 : 0;
 }
 
-size_t GoogleSignIn_GetServerAuthCode(GIDGoogleUser *guser, char *buf,
+size_t GoogleSignIn_GetServerAuthCode(SignInResult *result, char *buf,
                                       size_t len) {
-  NSString *val = [guser.configuration serverClientID];
-return CopyNSString(val, buf, len);
+    NSString *val = result->serverAuthCode;
+    return CopyNSString(val, buf, len);
 }
 
 size_t GoogleSignIn_GetDisplayName(GIDGoogleUser *guser, char *buf,

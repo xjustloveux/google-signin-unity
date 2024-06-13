@@ -39,6 +39,37 @@ Add UPM dependency with branch tag `https://github.com/Thaina/google-signin-unit
 }
 ```
 
+Also, [New version of iOS recommend](https://developers.google.com/identity/sign-in/ios/quick-migration-guide#google_sign-in_sdk_v700) that we should set `GIDClientID` and `GIDServerClientID` into Info.plist
+
+So I have add an editor tool `PListProcessor` that look for plist files in the project, extract `CLIENT_ID` and `WEB_CLIENT_ID` property of the plist which contain the `BUNDLE_ID` with the same name as bundle identifier of the project
+
+The plist file in the project should be downloaded from Google Cloud Console credential page
+
+Select iOS credential and download at ⬇ button
+
+```xml
+<!-- This plist was the default format downloaded from your google cloud console -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key> 
+	<string>{YourCloudProjectID}-yyyyyYYYYyyyyYYYYYYYYYYYYYYyyyyyy.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.{YourCloudProjectID}-yyyyyYYYYyyyyYYYYYYYYYYYYYYyyyyyy</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.{YourCompany}.{YourProductName}</string>
+<!-- Optional, These 2 lines below should be added manually if you need ServerAuthCode -->
+  <key>WEB_CLIENT_ID</key>
+  <string>{YourCloudProjectID}-zzzZZZZZZZZZZZZZZzzzzzzzzzzZZZzzz.apps.googleusercontent.com</string>
+</dict>
+</plist>
+```
+
+### Document below is original README, some information might be outdated
+
 # Google Sign-In Unity Plugin
 _Copyright (c) 2017 Google Inc. All rights reserved._
 

@@ -34,7 +34,8 @@ namespace Google.Impl {
 
     public GoogleSignInUser Result {
       get {
-        IntPtr ptr = GoogleSignInImpl.GoogleSignIn_Result(SelfPtr());
+        HandleRef self = SelfPtr();
+        IntPtr ptr = GoogleSignInImpl.GoogleSignIn_Result(self);
         if (ptr == IntPtr.Zero) {
           return null;
         }
@@ -54,7 +55,7 @@ namespace Google.Impl {
 
         user.IdToken = GoogleSignInImpl.GoogleSignIn_GetIdToken(userPtr);
 
-        user.AuthCode = GoogleSignInImpl.GoogleSignIn_GetServerAuthCode(userPtr);
+        user.AuthCode = GoogleSignInImpl.GoogleSignIn_GetServerAuthCode(self);
 
         string url = GoogleSignInImpl.GoogleSignIn_GetImageUrl(userPtr);
         if (url?.Length > 0) {
