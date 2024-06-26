@@ -3,7 +3,7 @@
 https://developer.android.com/identity/sign-in/legacy-gsi-migration
 https://developers.google.com/identity/sign-in/ios/quick-migration-guide
 
-Thank for ios fix which was cherrypicked from this fork : https://github.com/pillsgood/google-signin-unity
+Thank for ios fix which was cherrypicked from this fork : https://github.com/pillsgood/google-signin-unity which came from @DulgiKim https://github.com/googlesamples/google-signin-unity/pull/205#issuecomment-1724733615
 
 Android was migrated to use `CredentialManager` and `AuthorizationClient` since [GoogleSignInAccount was deprecated](https://developers.google.com/android/reference/com/google/android/gms/auth/api/signin/GoogleSignInAccount)
 
