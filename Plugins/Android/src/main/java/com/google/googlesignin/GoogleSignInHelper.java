@@ -46,6 +46,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.TaskExecutors;
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
 import com.unity3d.player.UnityPlayer;
 
@@ -74,13 +75,13 @@ public class GoogleSignInHelper {
 
   private CancellationSignal cancellationSignal;
   private Task<AuthorizationResult> task;
-  private Function<Boolean, Task<AuthorizationResult>> continuation;
+  private Function<Boolean, Task<AuthorizationResult>> signInFunction;
   public boolean isPending() {
     return task != null && !task.isComplete() && !task.isCanceled();
   }
 
   public int getStatus() {
-    if(continuation == null)
+    if(signInFunction == null)
       return CommonStatusCodes.DEVELOPER_ERROR;
 
     if(task == null)
@@ -137,7 +138,7 @@ public class GoogleSignInHelper {
           IListener requestHandle) {
     logDebug("TokenFragment.configure called");
 
-    continuation = new Function<Boolean, Task<AuthorizationResult>>() {
+    signInFunction = new Function<Boolean, Task<AuthorizationResult>>() {
       @Override
       public Task<AuthorizationResult> apply(@NonNull Boolean silent) {
         if(isPending()) {
@@ -148,21 +149,26 @@ public class GoogleSignInHelper {
 
         cancellationSignal = new CancellationSignal();
 
-        CancellationSignal signal = cancellationSignal;
-
-        GetGoogleIdOption.Builder getGoogleIdOptionBuilder = new GetGoogleIdOption.Builder()
-                .setFilterByAuthorizedAccounts(silent)
-                .setAutoSelectEnabled(hideUiPopups);
-
-        if(defaultAccountName != null)
-          getGoogleIdOptionBuilder.setNonce(defaultAccountName);
-
-        if(!Strings.isEmptyOrWhitespace(webClientId))
-          getGoogleIdOptionBuilder.setServerClientId(webClientId);
-
         GetCredentialRequest.Builder getCredentialRequestBuilder = new GetCredentialRequest.Builder()
-                .addCredentialOption(getGoogleIdOptionBuilder.build())
                 .setPreferImmediatelyAvailableCredentials(hideUiPopups);
+
+        if(silent) {
+          GetGoogleIdOption.Builder getGoogleIdOptionBuilder = new GetGoogleIdOption.Builder()
+                  .setFilterByAuthorizedAccounts(false)
+                  .setAutoSelectEnabled(hideUiPopups);
+
+          if(defaultAccountName != null)
+            getGoogleIdOptionBuilder.setNonce(defaultAccountName);
+
+          if(!Strings.isEmptyOrWhitespace(webClientId))
+            getGoogleIdOptionBuilder.setServerClientId(webClientId);
+
+          getCredentialRequestBuilder.addCredentialOption(getGoogleIdOptionBuilder.build());
+        }
+        else {
+          GetSignInWithGoogleOption.Builder getSignInWithGoogleOptionBuilder = new GetSignInWithGoogleOption.Builder(webClientId);
+          getCredentialRequestBuilder.addCredentialOption(getSignInWithGoogleOptionBuilder.build());
+        }
 
         TaskCompletionSource<GetCredentialResponse> source = new TaskCompletionSource<>();
 
@@ -203,7 +209,6 @@ public class GoogleSignInHelper {
 
             int additionalCount = additionalScopes != null ? additionalScopes.length : 0;
             List<Scope> scopes = new ArrayList<>(3 + additionalCount);
-            scopes.add(new Scope("openid"));
             scopes.add(new Scope(Scopes.PROFILE));
             if (requestEmail)
               scopes.add(new Scope(Scopes.EMAIL));
@@ -234,12 +239,12 @@ public class GoogleSignInHelper {
   }
 
   public GoogleSignInHelper signIn() {
-    task = continuation.apply(false);
+    task = signInFunction.apply(false);
     return this;
   }
 
   public GoogleSignInHelper signInSilently() {
-    task = continuation.apply(true);
+    task = signInFunction.apply(true);
     return this;
   }
 
