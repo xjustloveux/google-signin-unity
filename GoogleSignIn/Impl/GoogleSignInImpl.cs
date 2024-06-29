@@ -109,7 +109,7 @@ namespace Google.Impl {
 		bool requestIdToken, bool hidePopups, string[] additionalScopes,
 		int scopeCount, string accountName)
 	{
-		googleSignInHelper.ToAndroidJavaObject().Call("configure",
+		GoogleSignInHelper.CallStatic("configure",
 			useGameSignIn,
 			webClientId,
 			requestAuthCode,
@@ -159,12 +159,12 @@ namespace Google.Impl {
 
 	static IntPtr GoogleSignIn_SignIn(HandleRef self)
 	{
-		return self.ToAndroidJavaObject().Call<AndroidJavaObject>("signIn").GetRawObject();
+		return GoogleSignInHelper.CallStatic<AndroidJavaObject>("signIn").GetRawObject();
 	}
 
 	static IntPtr GoogleSignIn_SignInSilently(HandleRef self)
 	{
-		return self.ToAndroidJavaObject().Call<AndroidJavaObject>("signInSilently").GetRawObject();
+		return GoogleSignInHelper.CallStatic<AndroidJavaObject>("signInSilently").GetRawObject();
 	}
 
 	static void GoogleSignIn_Signout(HandleRef self)
@@ -175,18 +175,18 @@ namespace Google.Impl {
 		authorizationResult?.Dispose();
 		authorizationResult = null;
 
-		self.ToAndroidJavaObject().Call("signOut");
+		GoogleSignInHelper.CallStatic("signOut");
 	}
 
 	static void GoogleSignIn_Disconnect(HandleRef self) => throw new NotImplementedException();
 
-	internal static void GoogleSignIn_DisposeFuture(HandleRef self) => self.ToAndroidJavaObject()?.Call("cancel");
+	internal static void GoogleSignIn_DisposeFuture(HandleRef self) => GoogleSignInHelper.CallStatic("cancel");
 
-	internal static bool GoogleSignIn_Pending(HandleRef self) => self.ToAndroidJavaObject()?.Call<bool>("isPending") ?? false;
+	internal static bool GoogleSignIn_Pending(HandleRef self) => GoogleSignInHelper.CallStatic<bool>("isPending");
 
-	internal static IntPtr GoogleSignIn_Result(HandleRef self) => self.Handle;
+	internal static IntPtr GoogleSignIn_Result(HandleRef self) => googleIdTokenCredential.GetRawObject();
 
-	internal static int GoogleSignIn_Status(HandleRef self) => self.ToAndroidJavaObject()?.Call<int>("getStatus") ?? 6;
+	internal static int GoogleSignIn_Status(HandleRef self) => GoogleSignInHelper.CallStatic<int>("getStatus");
 	
 	internal static string GoogleSignIn_GetServerAuthCode(HandleRef self) => authorizationResult?.Call<string>("getServerAuthCode");
 

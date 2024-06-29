@@ -15,8 +15,6 @@
  */
 package com.google.googlesignin;
 
-import android.app.Activity;
-import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.util.Log;
 
@@ -37,10 +35,8 @@ import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.common.util.Strings;
-import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.OnTokenCanceledListener;
 import com.google.android.gms.tasks.SuccessContinuation;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
@@ -73,14 +69,14 @@ public class GoogleSignInHelper {
     loggingEnabled = flag;
   }
 
-  private CancellationSignal cancellationSignal;
-  private Task<AuthorizationResult> task;
-  private Function<Boolean, Task<AuthorizationResult>> signInFunction;
-  public boolean isPending() {
+  private static CancellationSignal cancellationSignal;
+  private static Task<AuthorizationResult> task;
+  private static Function<Boolean, Task<AuthorizationResult>> signInFunction;
+  public static boolean isPending() {
     return task != null && !task.isComplete() && !task.isCanceled();
   }
 
-  public int getStatus() {
+  public static int getStatus() {
     if(signInFunction == null)
       return CommonStatusCodes.DEVELOPER_ERROR;
 
@@ -125,7 +121,7 @@ public class GoogleSignInHelper {
    *                           C++ code, this is used
    *                           to correlate the response with the request.
    */
-  public void configure(
+  public static void configure(
           boolean useGamesConfig,
           String webClientId,
           boolean requestAuthCode,
@@ -208,7 +204,7 @@ public class GoogleSignInHelper {
               authorizationRequestBuilder.requestOfflineAccess(webClientId, forceRefreshToken);
 
             int additionalCount = additionalScopes != null ? additionalScopes.length : 0;
-            List<Scope> scopes = new ArrayList<>(3 + additionalCount);
+            List<Scope> scopes = new ArrayList<>(2 + additionalCount);
             scopes.add(new Scope(Scopes.PROFILE));
             if (requestEmail)
               scopes.add(new Scope(Scopes.EMAIL));
@@ -238,17 +234,17 @@ public class GoogleSignInHelper {
     };
   }
 
-  public GoogleSignInHelper signIn() {
+  public static Task<AuthorizationResult> signIn() {
     task = signInFunction.apply(false);
-    return this;
+    return task;
   }
 
-  public GoogleSignInHelper signInSilently() {
+  public static Task<AuthorizationResult> signInSilently() {
     task = signInFunction.apply(true);
-    return this;
+    return task;
   }
 
-  public void cancel() {
+  public static void cancel() {
     if(isPending() && cancellationSignal != null){
       cancellationSignal.cancel();
       cancellationSignal = null;
@@ -257,7 +253,7 @@ public class GoogleSignInHelper {
     task = null;
   }
 
-  public void signOut() {
+  public static void signOut() {
     cancel();
 
     CredentialManager.create(UnityPlayer.currentActivity).clearCredentialStateAsync(new ClearCredentialStateRequest(),
