@@ -150,7 +150,7 @@ public class GoogleSignInHelper {
 
         if(silent) {
           GetGoogleIdOption.Builder getGoogleIdOptionBuilder = new GetGoogleIdOption.Builder()
-                  .setFilterByAuthorizedAccounts(false)
+                  .setFilterByAuthorizedAccounts(hideUiPopups)
                   .setAutoSelectEnabled(hideUiPopups);
 
           if(defaultAccountName != null)

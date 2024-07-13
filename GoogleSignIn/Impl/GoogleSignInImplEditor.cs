@@ -120,8 +120,9 @@ namespace Google.Impl
           context.Response.OutputStream.Write(Encoding.UTF8.GetBytes("Can close this page"));
           context.Response.Close();
 
-          var result = await HttpWebRequest.CreateHttp("https://www.googleapis.com/oauth2/v4/token").Post("application/x-www-form-urlencoded","code=" + code + "&client_id=" + configuration.WebClientId + "&client_secret=" + configuration.ClientSecret + "&redirect_uri=" + httpListener.Prefixes.FirstOrDefault() + "&grant_type=authorization_code").ContinueWith((task) => task.Result,taskScheduler);
-          var jobj = JObject.Parse(result);
+          var jobj = await HttpWebRequest.CreateHttp("https://www.googleapis.com/oauth2/v4/token").Post("application/x-www-form-urlencoded","code=" + code + "&client_id=" + configuration.WebClientId + "&client_secret=" + configuration.ClientSecret + "&redirect_uri=" + httpListener.Prefixes.FirstOrDefault() + "&grant_type=authorization_code").ContinueWith((task) => {
+            return JObject.Parse(task.Result);
+          },taskScheduler);
 
           var accessToken = (string)jobj.GetValue("access_token");
           var expiresIn = (int)jobj.GetValue("expires_in");
