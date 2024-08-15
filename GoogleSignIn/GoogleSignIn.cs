@@ -140,7 +140,7 @@ namespace Google {
 
     public Task<GoogleSignInUser> SignInSilentlyAsync() {
       var tcs = new TaskCompletionSource<GoogleSignInUser>();
-      impl.SignIn().WaitForResultAsync(tcs).ContinueWith((task) => {});
+      impl.SignInSilently().WaitForResultAsync(tcs).ContinueWith((task) => {});
       return tcs.Task;
     }
 
